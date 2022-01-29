@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-@author: djimd
+@author: djimderidder
 """
 "import packages (make sure \2021imageAnalysisMEP\TEM\functions is in python path)"
 import numpy as np

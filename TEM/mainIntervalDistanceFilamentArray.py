@@ -1,15 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-@author: djimd
+@author: djimderidder
 """
 "import packages (make sure \2021imageAnalysisMEP\TEM\functions is in python path)"
-import numpy as np
 import pandas as pd
 import os
-
-from matplotlib import pyplot as plt
-import matplotlib.gridspec as gridspec
-from matplotlib_scalebar.scalebar import ScaleBar
 
 from skimage import io
 

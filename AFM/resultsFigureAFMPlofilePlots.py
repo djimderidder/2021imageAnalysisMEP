@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
 """
-@author: DjimDeRidder
+@author: djimderidder
 """
+"import packages"
 import pandas as pd
 import os
 
@@ -8,6 +10,7 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 from matplotlib_scalebar.scalebar import ScaleBar
 
+"====CONFIG==="
 excelNameI = "height2.xlsx"
 excelNameP = "profilePlots.xlsx"
 imageSheetA = "1116_004"
@@ -19,6 +22,9 @@ coordSheetB = "coordB"
 absolute_path_I = os.path.join(os.getcwd(), 'input', excelNameI)
 absolute_path_P = os.path.join(os.getcwd(), 'input', excelNameP)
 
+
+
+"=====CODE====="
 "import image"
 IA= pd.read_excel(absolute_path_I, sheet_name=imageSheetA).to_numpy()*10**9
 IB= pd.read_excel(absolute_path_I, sheet_name=imageSheetB).to_numpy()*10**9
