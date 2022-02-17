@@ -15,6 +15,8 @@ from matplotlib_scalebar.scalebar import ScaleBar
 
 from whatExpected import WhatExpected
 
+'This code is to fits the sum of two Gaussians on the height distrution.'
+
 "====CONFIG==="
 "1: define name of excel document and excel sheets"
 excelNameI = "height.xlsx"

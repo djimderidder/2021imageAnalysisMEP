@@ -9,11 +9,11 @@ def WhichFilament(lineCoord):
         lineCoord: arrays of x-y coordinates of linear splines
             lineCoord
     returns
-        K
+        K: index of filament for which we calculate the minimal distance
             int
-        kplus
+        kplus: amount of filaments above filament-K that will be looked at
             int
-        kmin
+        kmin: amount of filaments below filament-K that will be looked at
             int
         
     """

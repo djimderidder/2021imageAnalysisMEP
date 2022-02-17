@@ -4,9 +4,10 @@
 """
 def WhatExpected():
     """
-    Plot
+    Ask user to give an estimation of the Gaussians.
     returns
-        expected
+        expected: Mean, standard deviation and height of two gaussians
+            tuple: [6 int]
     """
     print('What is the expected height of the membrane?')
     while True:

@@ -16,14 +16,14 @@ from skimage.filters import gaussian
 
 "====CONFIG==="
 "1: define name of image"
-imageName = "holes_pip_hex_network_c_20210818_50nM_010-3.75.tif";
+imageName = "holes_pip_hex_network_c_20210818_50nM_009-3.75.tif";
 "2: define pixel scale [pixel/nm]"
 pxpnm = 3.75;
 "3: define name of excel document and excel sheets"
 excelName = "manualLines.xlsx";
 cropcoordSheet = "crops"
-indexCropcoord = 7;
-filamentSheet="TEM010"
+indexCropcoord = 6;
+filamentSheet="TEM009"
 distanceSheet="distances"
 "4: define starting index of shown filaments"
 istart = 2
@@ -47,8 +47,8 @@ I = I[round(y1):round(y2),round(x1):round(x2)]
 del imageName, absolute_path_I
 
 "select data"
-dataList=data.ravel()
-#dataList=data[:,0:53].ravel()
+#dataList=data.ravel()
+dataList=data[:,0:53].ravel()
 #dataList=data[:,53:92].ravel()
 #dataList=data[:,92:151].ravel()
 #dataList=data[:,151:203].ravel()
@@ -73,10 +73,9 @@ plt.rc('font',**font)
 "show blurred image"
 ax1.imshow(gaussian(I, sigma=4),origin='upper',cmap='gray')
 "show TEM image"
-discreteLines =[]
 for i in range(istart,int(lineCoord.shape[1]/2)): #line
     ax1.plot(lineCoord[:,i*2]-x1,lineCoord[:,i*2+1]-y1,'y.-',linewidth=2)
-scalebar = ScaleBar(1/3.75, "nm",length_fraction=0.3,width_fraction=1/30,color='w',frameon=False,location='lower left',font_properties={'size':15})
+scalebar = ScaleBar(1/3.75, "nm",length_fraction=0.25,width_fraction=1/30,color='w',frameon=False,location='lower left',font_properties={'size':15})
 ax1.add_artist(scalebar)
 ax1.axis('off')
 "show histogram"

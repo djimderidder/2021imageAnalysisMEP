@@ -10,6 +10,8 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 from matplotlib_scalebar.scalebar import ScaleBar
 
+'This code is to makes the height profile plots.'
+
 "====CONFIG==="
 excelNameI = "height2.xlsx"
 excelNameP = "profilePlots.xlsx"

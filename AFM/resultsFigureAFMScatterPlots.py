@@ -8,6 +8,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib.gridspec as gridspec
 
+'This code is to makes the scatter plots of the mean area fraction and mean height from the height distrution.'
 
 #353
 paramA = np.array([11.19910282,1.2002686,0.16911733,17.54120297,5.42380608,0.03567409])
@@ -38,21 +39,24 @@ param120 = np.array([2.03888155e+01,2.70920565e+00,8.84224550e-02,3.36506536e+01
 param120 = np.append([param120],[np.array([1.85568079e+01,1.80645572e+00,1.00565665e-01,2.93251515e+01,1.00839551e+01, 2.19091879e-02])],axis=0)
 param120 = np.append(param120,[np.array([2.04950243e+01,1.88987223e+00,1.02200952e-01,3.07567829e+01,1.12001726e+01, 1.87433074e-02])],axis=0)
 
+#paramA=param60
+#paramB=param120
+
 fig = plt.figure(tight_layout=True)
 fig.set_size_inches(3.2,3.2)
 gs2 = gridspec.GridSpec(1,1)
 ax = fig.add_subplot(gs2[0, 0])
 
-ax.scatter(2*np.ones(3),-paramB[:,0]+paramB[:,3],facecolor='0.5',s=75)
-ax.scatter(np.ones(3),-paramA[:,0]+paramA[:,3],facecolor='0.5',s=75)
+ax.scatter(2*np.ones(paramB.shape[0]),-paramB[:,0]+paramB[:,3],facecolor='0.5',s=75)
+ax.scatter(np.ones(paramA.shape[0]),-paramA[:,0]+paramA[:,3],facecolor='0.5',s=75)
 
 plt.ylim([0, 15])
 plt.xlim([0, 3])
 
 a=ax.get_xticks().tolist()
 a[0]=''
-a[1]='60 nM'
-a[2]='120 nM'
+a[1]='Medium \n denisty'
+a[2]='Dense'
 a[3]=''
 ax.set_xticklabels(a)
 plt.setp(ax.get_yticklabels(), fontsize=12);
@@ -68,16 +72,16 @@ ax = fig.add_subplot(gs2[0, 0])
 AA = np.sqrt(2*np.pi)*paramA[:,4]*paramA[:,5]
 AB = np.sqrt(2*np.pi)*paramB[:,4]*paramB[:,5]
 
-ax.scatter(2*np.ones(3),AB,facecolor='0.5',s=75)
-ax.scatter(np.ones(3),AA,facecolor='0.5',s=75)
+ax.scatter(2*np.ones(paramB.shape[0]),AB,facecolor='0.5',s=75)
+ax.scatter(np.ones(paramA.shape[0]),AA,facecolor='0.5',s=75)
 
 plt.ylim([0, 0.8])
 plt.xlim([0, 3])
 
 a=ax.get_xticks().tolist()
 a[0]=''
-a[1]='60 nM'
-a[2]='120 nM'
+a[1]='Medium \n denisty'
+a[2]='Dense'
 a[3]=''
 ax.set_xticklabels(a)
 plt.setp(ax.get_yticklabels(), fontsize=12);

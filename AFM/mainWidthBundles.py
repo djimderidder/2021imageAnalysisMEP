@@ -15,12 +15,14 @@ from skimage.filters import  gaussian,threshold_otsu
 from skimage.morphology import skeletonize
 from skimage import measure
 
+'This code estimates the width of the bundles.'
+
 "====CONFIG==="
 "1: define name of excel document and excel sheets"
-excelNameI = "height.xlsx"
-imageSheet = "resultsHexConcentrationAFM120"
+excelNameI = "height2.xlsx" #height.xlsx
+imageSheet = "1116_353" #resultsHexConcentrationAFM120
 "2: define width of figure in nm"
-figWidth = 5000
+figWidth = 10000
 "3: define amount of bins in histogram"
 histBins = 50
 
