@@ -43,21 +43,23 @@ param120 = np.append(param120,[np.array([2.04950243e+01,1.88987223e+00,1.0220095
 #paramB=param120
 
 fig = plt.figure(tight_layout=True)
-fig.set_size_inches(3.2,3.2)
+fig.set_size_inches(3.6,3.2)
 gs2 = gridspec.GridSpec(1,1)
 ax = fig.add_subplot(gs2[0, 0])
 
-ax.scatter(2*np.ones(paramB.shape[0]),-paramB[:,0]+paramB[:,3],facecolor='0.5',s=75)
-ax.scatter(np.ones(paramA.shape[0]),-paramA[:,0]+paramA[:,3],facecolor='0.5',s=75)
+ax.scatter(3*np.ones(paramB.shape[0]),-paramB[:,0]+paramB[:,3],facecolor='0.5',s=75)
+ax.scatter(2*np.ones(paramA.shape[0]),-paramA[:,0]+paramA[:,3],facecolor='0.5',s=75)
+ax.scatter(np.ones(param120.shape[0]),-param120[:,0]+param120[:,3],facecolor='0.5',s=75)
 
 plt.ylim([0, 15])
-plt.xlim([0, 3])
+plt.xlim([0, 4])
 
 a=ax.get_xticks().tolist()
 a[0]=''
-a[1]='Medium \n denisty'
-a[2]='Dense'
-a[3]=''
+a[1]='Sparse'
+a[2]='Medium \n denisty'
+a[3]='Dense'
+a[4]=''
 ax.set_xticklabels(a)
 plt.setp(ax.get_yticklabels(), fontsize=12);
 plt.setp(ax.get_xticklabels(), fontsize=12);
@@ -65,24 +67,27 @@ plt.setp(ax.get_xticklabels(), fontsize=12);
 ax.set_ylabel('Mean filament height [nm]',fontsize=13)
 #-------------------
 fig = plt.figure(tight_layout=True)
-fig.set_size_inches(3.2,3.2)
+fig.set_size_inches(3.6,3.2)
 gs2 = gridspec.GridSpec(1,1)
 ax = fig.add_subplot(gs2[0, 0])
 
 AA = np.sqrt(2*np.pi)*paramA[:,4]*paramA[:,5]
 AB = np.sqrt(2*np.pi)*paramB[:,4]*paramB[:,5]
+A120 = np.sqrt(2*np.pi)*param120[:,4]*param120[:,5]
 
-ax.scatter(2*np.ones(paramB.shape[0]),AB,facecolor='0.5',s=75)
-ax.scatter(np.ones(paramA.shape[0]),AA,facecolor='0.5',s=75)
+ax.scatter(3*np.ones(paramB.shape[0]),AB,facecolor='0.5',s=75)
+ax.scatter(2*np.ones(paramA.shape[0]),AA,facecolor='0.5',s=75)
+ax.scatter(np.ones(param120.shape[0]),A120,facecolor='0.5',s=75)
 
 plt.ylim([0, 0.8])
-plt.xlim([0, 3])
+plt.xlim([0, 4])
 
 a=ax.get_xticks().tolist()
 a[0]=''
-a[1]='Medium \n denisty'
-a[2]='Dense'
-a[3]=''
+a[1]='Sparse'
+a[2]='Medium \n denisty'
+a[3]='Dense'
+a[4]=''
 ax.set_xticklabels(a)
 plt.setp(ax.get_yticklabels(), fontsize=12);
 plt.setp(ax.get_xticklabels(), fontsize=12);

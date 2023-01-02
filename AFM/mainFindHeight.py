@@ -6,6 +6,8 @@
 import numpy as np
 import pandas as pd
 import os
+import re
+from ast import literal_eval
 
 from scipy.optimize import curve_fit
 
@@ -19,21 +21,35 @@ from whatExpected import WhatExpected
 
 "====CONFIG==="
 "1: define name of excel document and excel sheets"
-excelNameI = "height.xlsx"
-imageSheet = "resultsHexConcentrationAFM120_3"
-"2:  difine if you want a figure"
+nameconfig = "fitHeightDistributionshdn.xlsx"
+drive = "D:\AFM_sorted"
+folder = "5PIP2_20DOPS\hexamers\denseNetwork"
+
+absolute_path_config = os.path.join(drive,folder,nameconfig)
+config = pd.read_excel(absolute_path_config,skiprows=1)
+iConfig = 15
+
+#nameI = "2022.04.26-13.40.39.612__s1__Si-SLB 5pip2 20dops-120 nM hex__QI_512px-10um.txt"
+nameI = config['name'][iConfig]
+
+#ymin = 0; ymax = 10000; xmin = 0; xmax= 10000;
+ymin,ymax,xmin,xmax=[int(s) for s in re.findall(r'\b\d+\b',config['crop'][iConfig])]
+
+
+"2: define crop region"
+#ymin = 0; ymax = 204; xmin = 0; xmax= 512;
+"3: define if you want a figure"
 booleanFig = True
-maxHeightFig = 60
 "optional: define expected value for the bimodal distribution, else leave curly brackets empty"
-expected = (20,2,0.11,35,8,0.01)
-
-
+#expected = (11,1,0.1,14,2,0.1)
+expected = literal_eval(config['params_estimation'][iConfig])
 
 "=====CODE====="
+plt.close('all')
 "import crop coordinates from \2021imageAnalysisMEP\TEM\input"
-absolute_path_I = os.path.join(os.getcwd(), 'input', excelNameI)
-I = pd.read_excel(absolute_path_I, sheet_name=imageSheet).to_numpy()
-I = (I-min(I.ravel()))*10**9
+absolute_path_I = os.path.join(drive,folder,nameI)
+I =(np.loadtxt(absolute_path_I)*10**9)[ymin:ymax,xmin:xmax]
+print(I.shape)
 "plot image"
 y,x,_=plt.hist(I.ravel(),bins=100,density=True,color = "0.7")
 plt.pause(0.1) #helps with showing image before asking questions
@@ -52,6 +68,7 @@ params,cov=curve_fit(bimodal,x,y,expected)
 plt.plot(x,bimodal(x,*params),color='red',lw=3,label='model')
 
 "plot image and histogram with fit"
+maxHeightFig = np.round(params[3]+np.absolute(params[4])*2.5)
 if booleanFig==True:
     fig = plt.figure(tight_layout=True)
     fig.set_size_inches(12,8)
@@ -77,11 +94,13 @@ if booleanFig==True:
     ax3.axis('off')
     ax4.axis('off')
     cbar = plt.colorbar(cax, ax=ax4,shrink=1,ticks=[0,maxHeightFig])
-    cbar.set_ticklabels(["0 nm", maxHeightFig+"nm"])
+    cbar.set_ticklabels(["0 nm", str(maxHeightFig)+"nm"])
     cbar.ax.tick_params(labelsize=20)
     
     scalebar = ScaleBar(10/512, "um",length_fraction=0.3,width_fraction=1/30,color='w',frameon=False,location='lower left',label_formatter = lambda x, y:'')
     ax3.add_artist(scalebar)
     
-    dirName = os.path.join(os.getcwd(), 'output', 'resultsHeightAFM.png');
-    fig.savefig(dirName, format='png', dpi=720)
+    #dirName = os.path.join(os.getcwd(), 'output', 'resultsHeightAFM.png');
+    #fig.savefig(dirName, format='png', dpi=720)
+
+print(params)
