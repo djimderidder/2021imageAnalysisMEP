@@ -104,11 +104,17 @@ class LineDetector:
     junctions = list()
     _lines = list()
 
-    def __init__():
+    def __init__(sigma,lowerT,highT,mode):
         """
         Set the params used in the code.:
         """
-        self.params. = 
+        self.params.get_sigma() = sigma
+	self.params.get_lower_Threshold() = lowerT
+	self.params.get_upper_Threshold() = highT
+	self.params.get_darkline() = mode
+	self.params.get_estimate_width() = computeWidth
+        self.params.get_correct_position() = correctPos
+	self.params.get_doExtendLine() = extend_lines
 
         """
          in the code are 2 array class of the class junction and line
