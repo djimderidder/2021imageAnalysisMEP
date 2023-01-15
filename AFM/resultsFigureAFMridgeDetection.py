@@ -12,7 +12,7 @@ from ast import literal_eval
 
 import cv2
 
-from skimage.filters import meijering, sato, frangi, hessian, gaussian, threshold_otsu, prewitt_h, prewitt_v
+from skimage.filters import meijering, sato, frangi, hessian, hessian_matrix_eigvals, gaussian, threshold_otsu, prewitt_h, prewitt_v
 from skimage.morphology import skeletonize, thin, binary_erosion
 from skimage.feature import hessian_matrix
 
@@ -36,12 +36,15 @@ ymin,ymax,xmin,xmax=[int(s) for s in re.findall(r'\b\d+\b',config['crop'][iConfi
 
 "=====CODE====="
 plt.close('all')
-"import: and crop coordinates from \2021imageAnalysisMEP\TEM\input"
+"import: and crop coordinates"
 absolute_path_I = os.path.join(drive,folder,nameI)
 image =(np.loadtxt(absolute_path_I)*10**9)[ymin:ymax,xmin:xmax]
 cmap = plt.cm.gray
 "pre-processing: remove outliers"
-#heightLimit = config['x4'][iConfig]+3*config['x5'][iConfig]
+heightLimitUp = config['x4'][iConfig]+3*config['x5'][iConfig]
+image[image>heightLimitUp]=heightLimitUp
+heightLimitLow = config['x1'][iConfig]-3*config['x2'][iConfig]
+image[image<heightLimitLow]=heightLimitLow
 "pre-processing: detect ridges Steger"
 #imageUnsharp = image-gaussian(image,sigma=np.sqrt(2)) #sigma = sqrt(sigma1**2+sigma**2)
 #imageMask = imageUnsharp>=threshold_otsu(imageUnsharp*(imageUnsharp>0))
@@ -49,14 +52,28 @@ cmap = plt.cm.gray
 #imageHessian = hessian_matrix(skeletonize(imageMask),sigma=1)# hessian detection
 #imagedy = prewitt_h(gaussian(skeletonize(imageMask),sigma=1))#prewitt is technically also a average filter
 #imagedx = prewitt_v(gaussian(skeletonize(imageMask),sigma=1))#prewitt is technically also a average filter
+from ridge_detection.lineDetector import LineDetector
+from ridge_detection.params import Params,load_json
+from skimage.util import img_as_ubyte
 
-from ridgeDetectionMPI import RidgeDetectionMPI
+config_filename = os.path.join(os.getcwd(), 'input', "params.json")
+json_data=load_json(config_filename)
+params = Params(config_filename)
 
-Ix, Iy, Ixx, Ixy, Iyy, contours, junctions = RidgeDetectionMPI(image)
+img = img_as_ubyte((image-np.min(image))/(np.max(image)-np.min(image)))
+test=np.reshape(img, image.shape[0]*image.shape[1])
+test=np.reshape(img, [image.shape[1],image.shape[0]])
 
-plt.imshow(image,cmap)
-for i in range(len(contours)):
-    plt.plot(contours[i].col,contours[i].row)
+detect = LineDetector(params=config_filename)
+result = detect.detectLines(test)
+
+plt.imshow(img,cmap)
+for i in range(len(result)):
+    plt.plot(result[i].col,result[i].row,'r')
+    
+H = hessian_matrix(img,sigma=1)
+E = H[0]+H[2] #energy
+c = np.abs(hessian_matrix_eigvals(H)[0]-hessian_matrix_eigvals(H)[1])/(hessian_matrix_eigvals(H)[0]+hessian_matrix_eigvals(H)[1])#coherency
 '''
 #plot preprocessing
 ###

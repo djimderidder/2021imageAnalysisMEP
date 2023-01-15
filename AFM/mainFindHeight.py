@@ -27,7 +27,7 @@ folder = "5PIP2_20DOPS\hexamers\denseNetwork"
 
 absolute_path_config = os.path.join(drive,folder,nameconfig)
 config = pd.read_excel(absolute_path_config,skiprows=1)
-iConfig = 15
+iConfig = 45
 
 #nameI = "2022.04.26-13.40.39.612__s1__Si-SLB 5pip2 20dops-120 nM hex__QI_512px-10um.txt"
 nameI = config['name'][iConfig]
@@ -41,7 +41,7 @@ ymin,ymax,xmin,xmax=[int(s) for s in re.findall(r'\b\d+\b',config['crop'][iConfi
 "3: define if you want a figure"
 booleanFig = True
 "optional: define expected value for the bimodal distribution, else leave curly brackets empty"
-#expected = (11,1,0.1,14,2,0.1)
+#expected = (6,1,0.1,10,1,0.2)
 expected = literal_eval(config['params_estimation'][iConfig])
 
 "=====CODE====="
