@@ -104,11 +104,20 @@ class LineDetector:
     junctions = list()
     _lines = list()
 
-    def __init__():
+    def __init__(self,sigma,lowerT,highT,mode):
         """
         Set the params used in the code.:
         """
-        self.params. = 
+        self.params.get_sigma() = sigma
+	self.params.get_lower_Threshold() = lowerT
+	self.params.get_upper_Threshold() = highT
+	self.params.get_darkline() = mode
+	self.params.get_estimate_width() = computeWidth
+        self.params.get_correct_position() = correctPos
+	self.params.get_doExtendLine() = extend_lines
+	#.get_minimum_Line_Length()
+	#.get_correct_position()
+	#.get_maximum_Line_Length(
 
         """
          in the code are 2 array class of the class junction and line
@@ -284,73 +293,6 @@ class LineDetector:
             swap = j.x
             j.x=j.y
             j.y=swap
-
-        # IN ALL MY TESTS, HENCE STARTING FROM THE VERY BEGINNING, I NEVER USED IT. ANYWAY IT SEEMS TO BE USEFULL ONLY IN THE JAVA VERSION
-        """
-        father_frame = self.junctions[0].father_frame if len(self.junctions)>0 else None
-        newJunctions = list()          # list of junction having the same fatherframe of the self.junctions[*]
-        processedJunctions = list()    # it is a list of  java.Point2D.Float --> hence a list of list of 2 float elements called x,y -->  processedJunctions[i].x processedJunctions[i].y
-
-        for i in range(len(self.junctions)):
-            junc = self.junctions[i]
-            mainLine = None     # obj Line, i do not init it because the IDAssign method
-            mainLineIndex = -1
-            mainLinePos = -1
-            secondaryLines = list()     # list of Line
-            secondaryLineIndex = list() # list of integer
-            secondaryLinePos = list()  # list of integer
-
-            #process each junction-position only once
-            if [junc.x,junc.y] not in processedJunctions:
-                processedJunctions.append([junc.x,junc.y] )
-
-                # find the secondary line and the main line
-                for j in range(len(lines)):
-                    l=lines[j]
-                    mindist = self.minDistance(l, junc.x, junc.y)
-
-                    if mindist[0]<0.1:
-                        # The point is on the line 
-                        if mindist[1] == 0 or mindist[1] == l.num-1:
-                            # the start/end junction-point is on the line, it is a secondary line
-                            secondaryLines.append(l)
-                            secondaryLineIndex.append(j)
-                            secondaryLinePos.append(mindist[1])
-                        else:
-                            # if inside the line, it is the main line
-                            if mainLine is not None:
-                                if mainLine.getID() == l.getID():
-                                    continue
-                            mainLine = l
-                            mainLineIndex = j
-                            mainLinePos = int (mindist[1])
-
-
-                if mainLine is not None:
-                    for j in range(len(secondaryLines)):
-                        newJunctions.append( Junction(cont1=mainLineIndex, cont2=secondaryLineIndex[j], pos=mainLinePos, x =junc.x, y=junc.y, lineCont1=None, lineCont2=None, father_frame=father_frame ))
-                else:
-                    # in some cases there is no main line ... maybe there is a bug in the alghoritm, we are not going to fix it
-                    uniqueIDs= set()            # of integer
-                    uniqueLines = list()        # of line
-                    uniqueLineIndex = list()    # of integer
-                    uniqueLinePos = list()      # of integer
-
-                    for  j in range(len(secondaryLines)):
-                        if not secondaryLines[j].getID() in uniqueIDs:
-                            uniqueIDs.add(secondaryLines[j].getID())
-                            uniqueLines.append(secondaryLines[j])
-                            uniqueLineIndex.append(secondaryLineIndex[j])
-                            uniqueLinePos.append(secondaryLinePos[j])
-
-                    for  j in range(len(uniqueLines)):
-                        for k in range(j+1,len(uniqueLines)):
-                            newJunctions.append(Junction(cont1=uniqueLineIndex[j], cont2=uniqueLineIndex[k], pos=uniqueLinePos[j], x=junc.x,y=junc.y, lineCont1=None, lineCont2=None, father_frame=father_frame))
-                            self.alreadyProcessedJunctionPoints.add(len(newJunctions) - 1)
-
-        return newJunctions
-        """
-
 
     @staticmethod
     def reconstructContourClass(currentClass, num, pos):
