@@ -1,35 +1,50 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Jan 27 11:27:46 2023
+
+@author: ridderdde
+"""
 import numpy as np
 import pandas as pd
 import os
-
-import skimage.io
 import re
 
+import skimage.io
+from skimage.util import img_as_uint, img_as_ubyte
+from skimage.filters import  gaussian,threshold_otsu, hessian
+from skimage.morphology import skeletonize, thin, dilation, label
+from skimage.feature import corner_harris, corner_subpix, corner_peaks, structure_tensor, canny
+from skimage.transform import probabilistic_hough_line
+from skimage.draw import line
+
+from matplotlib import pyplot as plt
+import matplotlib.gridspec as gridspec
+from matplotlib_scalebar.scalebar import ScaleBar
+colorOI=['#000000','#E69F00','#56B4E9','#009E73','#F0E442','#0072B2','#D55E00','#CC79A7']
+cmap = plt.cm.gray
+
+#config
+fileFolder = r"F:\AFM_sorted\5PIP2_20DOPS\hexamers\denseNetwork"
 nameconfig = "fitHeightDistributionshdn.xlsx"
-drive = "F:\AFM_sorted"
-folder = "5PIP2_20DOPS\hexamers\denseNetwork"
-absolute_path_config = os.path.join(drive,folder,nameconfig)
+
+absolute_path_config = os.path.join(fileFolder,nameconfig)
 config = pd.read_excel(absolute_path_config,skiprows=1)
 iConfig = 15
+
+#load image
 nameI = config['name'][iConfig]
+
 ymin,ymax,xmin,xmax=[int(s) for s in re.findall(r'\b\d+\b',config['crop'][iConfig])]
-absolute_path_I = os.path.join(drive,folder,nameI)
+
+absolute_path_I = os.path.join(fileFolder,nameI)
 image =(np.loadtxt(absolute_path_I)*10**9)[ymin:ymax,xmin:xmax]
-cmap = plt.cm.gray
+
+#preprocessing
 heightLimitUp = config['x4'][iConfig]+3*config['x5'][iConfig]
 image[image>heightLimitUp]=heightLimitUp
 heightLimitLow = config['x1'][iConfig]-3*config['x2'][iConfig]
 image[image<heightLimitLow]=heightLimitLow
-img = img_as_ubyte((image-np.min(image))/(np.max(image)-np.min(image)))
 
-
-#I = gaussian(I,sigma=2)#we blur first to remove oulier noise
-#I = (I-np.min(I))/(np.max(I)-np.min(I)) #norm image before conversion
-#img = img_as_ubyte(image) #since 8 bit converstion is stupid for x<256 np.uint8(np.array([254,255,256],dtype=np.uint16))
-#img = img[1000:1500,1000:1500]
-
-
-#estimate derivatives
 from ridge_detection.convol import convolve_gauss
 def gaussDerivative(img,sigma):
     width=img.shape[0]
@@ -42,23 +57,24 @@ def gaussDerivative(img,sigma):
     r['rx'] = np.reshape(k[0],[width,height])
     r['ry'] = np.reshape(k[1],[width,height])
     r['rxx'] = np.reshape(k[2],[width,height])
-    r['rxy'] = np.reshape(k[3],[width,height])
-    r['ryy'] = np.reshape(k[4],[width,height])
+    r['ryy'] = np.reshape(k[3],[width,height])
+    r['rxy'] = np.reshape(k[4],[width,height])
                            
     return r
 
-r = gaussDerivative(img,sigma=2) #rx = r['rx']
+r = gaussDerivative(image,sigma=2) #rx = r['rx']
 
-#compute line points
 from numpy.linalg import eig
 def  orderEigH(r):
-    width=img.shape[0]
-    height=img.shape[1]
+    width=r['rx'].shape[0]
+    height=r['rx'].shape[1]
     
     eigval = np.zeros([width,height,2])
     eigvec = np.zeros([width,height,2,2])
     for xx in range(height):
         for yy in range(width):
+            kx = r['rx'][xx,yy]
+            ky = r['ry'][xx,yy]
             kxx = r['rxx'][xx,yy]
             kxy = r['rxy'][xx,yy]
             kyy = r['ryy'][xx,yy]
@@ -87,6 +103,111 @@ def  orderEigH(r):
                     eigvec[xx,yy,1] = v[1]                    
     return eigval, eigvec
 
-eigval, eigvec = orderEigH(r)
-c = (eigval[:,:,0]-eigval[:,:,1])/(eigval[:,:,0]+eigval[:,:,1])
-E = r['rxx']+r['ryy']
+def circular_hist(ax, x, bins=16, density=True, offset=0, gaps=True):
+    """
+    Produce a circular histogram of angles on ax.
+    Parameters
+    ----------
+    ax : matplotlib.axes._subplots.PolarAxesSubplot
+        axis instance created with subplot_kw=dict(projection='polar').
+    x : array
+        Angles to plot, expected in units of radians.
+    bins : int, optional
+        Defines the number of equal-width bins in the range. The default is 16.
+    density : bool, optional
+        If True plot frequency proportional to area. If False plot frequency
+        proportional to radius. The default is True.
+    offset : float, optional
+        Sets the offset for the location of the 0 direction in units of
+        radians. The default is 0.
+    gaps : bool, optional
+        Whether to allow gaps between bins. When gaps = False the bins are
+        forced to partition the entire [-pi, pi] range. The default is True.
+    Returns
+    -------
+    n : array or list of arrays
+        The number of values in each bin.
+    bins : array
+        The edges of the bins.
+    patches : `.BarContainer` or list of a single `.Polygon`
+        Container of individual artists used to create the histogram
+        or list of such containers if there are multiple input datasets.
+    """
+    # Wrap angles to [-pi, pi)
+    x = (x+np.pi) % (2*np.pi) - np.pi
+
+    # Force bins to partition entire circle
+    if not gaps:
+        bins = np.linspace(-np.pi, np.pi, num=bins+1)
+
+    # Bin data and record counts
+    n, bins = np.histogram(x, bins=bins)
+
+    # Compute width of each bin
+    widths = np.diff(bins)
+
+    # By default plot frequency proportional to area
+    if density:
+        # Area to assign each bin
+        area = n / x.size
+        # Calculate corresponding bin radius
+        radius = (area/np.pi) ** .5
+    # Otherwise plot frequency proportional to radius
+    else:
+        radius = n
+
+    # Plot data on ax
+    patches = ax.bar(bins[:-1], radius, zorder=1, align='edge', width=widths,
+                     edgecolor='C0', fill=False, linewidth=1)
+
+    # Set the direction of the zero angle
+    ax.set_theta_offset(offset)
+
+    # Remove ylabels for area plots (they are mostly obstructive)
+    if density:
+        ax.set_yticks([])
+
+    return n, bins, patches
+
+eigvalI, eigvecI = orderEigH(r)
+orientationI = np.nan_to_num(2*np.arctan(0.5*r['rxy']/(r['ryy']-r['rxx']))) #no clue why this is times 0.25 it should be 0.5
+#coherencyI = eigvalI[:,:,0]-eigvalI[:,:,1]/(eigvalI[:,:,0]+eigvalI[:,:,1])
+coherencyI = np.sqrt((r['ryy']-r['rxx'])**2+5*r['rxy']**2)/(r['ryy']+r['rxx'])
+coherencyI[coherencyI<0]=0
+coherencyI[coherencyI>1]=1
+energyI = r['rxx']+r['ryy']
+
+from matplotlib.colors import hsv_to_rgb
+hsvI = np.zeros([752,752,3])
+hsvI[:,:,0] = (orientationI[8:760,8:760]+np.pi)/(2*np.pi)
+hsvI[:,:,1] = coherencyI[8:760,8:760]
+img = image[8:760,8:760]
+hsvI[:,:,2] = img/25
+fig = plt.figure()
+plt.axis('off')
+plt.imshow(hsv_to_rgb(hsvI))
+
+imagetest = np.array(skimage.io.imread(r"\\VUW\Personal$\Homes\R\ridderdde\Downloads\chirp.tif"),dtype=np.uint8)
+rtest = gaussDerivative(imagetest,sigma=2) #rx = r['rx']
+orientationItest = np.nan_to_num(2*np.arctan(0.5*rtest['rxy']/(rtest['ryy']-rtest['rxx']))) #no clue why this is times 0.25 it should be 0.5
+coherencyItest = np.sqrt((rtest['ryy']-rtest['rxx'])**2+5*rtest['rxy']**2)/(rtest['ryy']+rtest['rxx'])
+coherencyItest[coherencyItest<0]=0
+coherencyItest[coherencyItest>1]=1
+
+hsvItest = np.zeros([256,256,3])
+hsvItest[:,:,0] = (orientationItest+np.pi)/(2*np.pi)
+hsvItest[:,:,1] = coherencyItest
+imgtest = imagetest
+hsvItest[:,:,2] = imgtest
+fig2 = plt.figure()
+plt.imshow(hsv_to_rgb(hsvItest))
+plt.axis('off')
+
+
+filterOrientation = orientationI[(coherencyI>0.6)*(energyI>0.2)]
+for i in range(filterOrientation.shape[0]):
+    if filterOrientation[i]<0:
+        filterOrientation[i]=filterOrientation[i]+np.pi
+    
+fig, ax = plt.subplots(1,subplot_kw=dict(projection='polar'))
+circular_hist(ax, filterOrientation, bins=50,density =True,offset=0,gaps=True)
