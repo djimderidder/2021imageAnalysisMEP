@@ -57,8 +57,8 @@ def gaussDerivative(img,sigma):
     r['rx'] = np.reshape(k[0],[width,height])
     r['ry'] = np.reshape(k[1],[width,height])
     r['rxx'] = np.reshape(k[2],[width,height])
-    r['ryy'] = np.reshape(k[3],[width,height])
-    r['rxy'] = np.reshape(k[4],[width,height])
+    r['ryy'] = np.reshape(k[3],[width,height]) #or is this rxy
+    r['rxy'] = np.reshape(k[4],[width,height]) #or is this ryy
                            
     return r
 
@@ -169,40 +169,26 @@ def circular_hist(ax, x, bins=16, density=True, offset=0, gaps=True):
 
     return n, bins, patches
 
-eigvalI, eigvecI = orderEigH(r)
 orientationI = np.nan_to_num(2*np.arctan(0.5*r['rxy']/(r['ryy']-r['rxx']))) #no clue why this is times 0.25 it should be 0.5
+orientationI=orientationI[8:760,8:760]
 #coherencyI = eigvalI[:,:,0]-eigvalI[:,:,1]/(eigvalI[:,:,0]+eigvalI[:,:,1])
 coherencyI = np.sqrt((r['ryy']-r['rxx'])**2+5*r['rxy']**2)/(r['ryy']+r['rxx'])
 coherencyI[coherencyI<0]=0
 coherencyI[coherencyI>1]=1
+coherencyI = coherencyI[8:760,8:760]
 energyI = r['rxx']+r['ryy']
+energyI = energyI[8:760,8:760]
+
 
 from matplotlib.colors import hsv_to_rgb
 hsvI = np.zeros([752,752,3])
-hsvI[:,:,0] = (orientationI[8:760,8:760]+np.pi)/(2*np.pi)
-hsvI[:,:,1] = coherencyI[8:760,8:760]
+hsvI[:,:,0] = (orientationI+np.pi)/(2*np.pi)
+hsvI[:,:,1] = coherencyI
 img = image[8:760,8:760]
 hsvI[:,:,2] = img/25
 fig = plt.figure()
 plt.axis('off')
 plt.imshow(hsv_to_rgb(hsvI))
-
-imagetest = np.array(skimage.io.imread(r"\\VUW\Personal$\Homes\R\ridderdde\Downloads\chirp.tif"),dtype=np.uint8)
-rtest = gaussDerivative(imagetest,sigma=2) #rx = r['rx']
-orientationItest = np.nan_to_num(2*np.arctan(0.5*rtest['rxy']/(rtest['ryy']-rtest['rxx']))) #no clue why this is times 0.25 it should be 0.5
-coherencyItest = np.sqrt((rtest['ryy']-rtest['rxx'])**2+5*rtest['rxy']**2)/(rtest['ryy']+rtest['rxx'])
-coherencyItest[coherencyItest<0]=0
-coherencyItest[coherencyItest>1]=1
-
-hsvItest = np.zeros([256,256,3])
-hsvItest[:,:,0] = (orientationItest+np.pi)/(2*np.pi)
-hsvItest[:,:,1] = coherencyItest
-imgtest = imagetest
-hsvItest[:,:,2] = imgtest
-fig2 = plt.figure()
-plt.imshow(hsv_to_rgb(hsvItest))
-plt.axis('off')
-
 
 filterOrientation = orientationI[(coherencyI>0.6)*(energyI>0.2)]
 for i in range(filterOrientation.shape[0]):
@@ -211,3 +197,25 @@ for i in range(filterOrientation.shape[0]):
     
 fig, ax = plt.subplots(1,subplot_kw=dict(projection='polar'))
 circular_hist(ax, filterOrientation, bins=50,density =True,offset=0,gaps=True)
+
+#test image
+imagetest = np.array(skimage.io.imread(r"\\VUW\Personal$\Homes\R\ridderdde\Downloads\chirp.tif"),dtype=np.uint8)
+rtest = gaussDerivative(imagetest,sigma=2) #rx = r['rx']
+
+orientationItest = np.nan_to_num(2*np.arctan(0.5*rtest['rxy']/(rtest['ryy']-rtest['rxx']))) #no clue why this is times 0.25 it should be 0.5
+orientationItest=orientationItest[8:248,8:248]
+coherencyItest = np.sqrt((rtest['ryy']-rtest['rxx'])**2+5*rtest['rxy']**2)/(rtest['ryy']+rtest['rxx'])
+coherencyItest[coherencyItest<0]=0
+coherencyItest[coherencyItest>1]=1
+coherencyItest = coherencyItest[8:248,8:248]
+energyItest = rtest['rxx']+rtest['ryy']
+energyItest = energyItest[8:248,8:248]
+
+hsvItest = np.zeros([240,240,3])
+hsvItest[:,:,0] = (orientationItest+np.pi)/(2*np.pi)
+hsvItest[:,:,1] = coherencyItest
+imgtest = imagetest[8:248,8:248]
+hsvItest[:,:,2] = imgtest
+fig2 = plt.figure()
+plt.imshow(hsv_to_rgb(hsvItest))
+plt.axis('off')
