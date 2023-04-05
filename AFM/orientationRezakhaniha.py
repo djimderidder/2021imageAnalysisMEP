@@ -53,11 +53,12 @@ def gaussDerivative(img,sigma):
     k = convolve_gauss(imgpxls2,width,height,sigma)
     
     r = {}
+
     r['ry'] = np.reshape(k[0],[width,height])
     r['rx'] = np.reshape(k[1],[width,height])
     r['ryy'] = np.reshape(k[2],[width,height])
     r['rxy'] = np.reshape(k[3],[width,height])
-    r['rxx'] = np.reshape(k[4],[width,height])
+    r['rxx'] = np.reshape(k[4],[width,height])# check this
                            
     return r
 
@@ -198,10 +199,10 @@ fig, ax = plt.subplots(1,subplot_kw=dict(projection='polar'))
 circular_hist(ax, filterOrientation, bins=50,density =True,offset=0,gaps=True)
 
 #test image
-imagetest = np.array(skimage.io.imread(r"C:\Users\djimd\Downloads\chirp.tif"),dtype=np.uint8)
-rtest = gaussDerivative(imagetest,sigma=1) #rx = r['rx']
+imagetest = np.array(skimage.io.imread(r"\\VUW\Personal$\Homes\R\ridderdde\Downloads\chirp.tif"),dtype=np.uint8)
+rtest = gaussDerivative(imagetest,sigma=2) #rx = r['rx']
 
-orientationItest = np.nan_to_num(0.5*np.arctan(2*rtest['rxy']/(rtest['ryy']-rtest['rxx'])))
+orientationItest = np.nan_to_num(2*np.arctan(0.5*rtest['rxy']/(rtest['ryy']-rtest['rxx']))) #no clue why this is times 0.25 it should be 0.5
 orientationItest=orientationItest[8:248,8:248]
 coherencyItest = np.sqrt((rtest['ryy']-rtest['rxx'])**2+5*rtest['rxy']**2)/(rtest['ryy']+rtest['rxx'])
 coherencyItest[coherencyItest<0]=0
