@@ -90,6 +90,5 @@ a[3]='Dense'
 a[4]=''
 ax.set_xticklabels(a)
 plt.setp(ax.get_yticklabels(), fontsize=12);
-plt.setp(ax.get_xticklabels(), fontsize=12);
 
 ax.set_ylabel('Mean area fraction',fontsize=15)

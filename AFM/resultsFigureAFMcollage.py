@@ -21,9 +21,9 @@ def importTxt(imgNameI,ymin,ymax,xmin,xmax):
     return out
 
 #high denisty network
-IM1 = importTxt(imgNameI = "2022.05.31-15.35.35.417__s3__Si-SLB 5pip2 20dops-60 nM hex__QI_512px-5um.txt",ymin=0,ymax=171,xmin=0,xmax=512)
+IM1 = importTxt(imgNameI = "2022.04.28-13.13.57.624__s2__Si-SLB 5pip2 20dops-120 nM hex__QI_512px-10um.txt",ymin=0,ymax=100,xmin=256,xmax=512)
 #lower denisty network
-IM2 = importTxt(imgNameI = "2022.04.28-12.30.03.626__s2__Si-SLB 5pip2 20dops-120 nM hex__QI_512px-10um.txt",ymin=0,ymax=86,xmin=0,xmax=256)
+IM2 = importTxt(imgNameI = "2022.04.28-15.06.53.642__s3__Si-SLB 5pip2 20dops-120 nM hex__PF_512px-10um.txt",ymin=52,ymax=152,xmin=25,xmax=281)
 #isotropic network
 IM3 = importTxt(imgNameI = "2022.05.24-12.14.46.827__s1__Si-SLB 5pip2 20dops-120 nM hex__QI_512px-5um.txt",ymin=0,ymax=171,xmin=0,xmax=512)
 
@@ -75,11 +75,11 @@ gs1 = gridspec.GridSpec(1,2)
 gs2 = gridspec.GridSpec(1,4)
 gs3 = gridspec.GridSpec(1,1)
 gs4 = gridspec.GridSpec(2,1)
-
+"""
 fig1 = plt.figure(tight_layout=True)
 fig1.set_size_inches(14,3) #width, height
-"""
-subplotgrid(fig=fig1,gs=gs1,y=0,x=1,I=IM1,clow=0,chigh=25,widthpx=512,widthnm=5000)
+
+subplotgrid(fig=fig1,gs=gs1,y=0,x=1,I=IM1,clow=0,chigh=30,widthpx=512,widthnm=10000)
 subplotgrid(fig=fig1,gs=gs1,y=0,x=0,I=IM2,clow=0,chigh=30,widthpx=512,widthnm=10000)
 
 fig2 = plt.figure(tight_layout=True)
@@ -94,12 +94,16 @@ fig3 = plt.figure(tight_layout=True)
 fig3.set_size_inches(7,3) #width, height
 
 subplotgrid(fig=fig3,gs=gs3,y=0,x=0,I=ag3,clow=0,chigh=20,widthpx=512,widthnm=5000)
-
+"""
 fig4 = plt.figure(tight_layout=True)
 fig4.set_size_inches(7,6) #width, height
 
+subplotgrid(fig=fig4,gs=gs4,y=1,x=0,I=IM1,clow=0,chigh=30,widthpx=512,widthnm=10000)
+subplotgrid(fig=fig4,gs=gs4,y=0,x=0,I=IM2,clow=0,chigh=30,widthpx=512,widthnm=10000)
+"""
 subplotgrid(fig=fig4,gs=gs4,y=0,x=0,I=ia1,clow=0,chigh=25,widthpx=512,widthnm=2000)
 subplotgrid(fig=fig4,gs=gs4,y=1,x=0,I=ia2,clow=0,chigh=30,widthpx=1024,widthnm=6000)
-"""
+
 subplotgrid(fig=fig1,gs=gs1,y=0,x=0,I=ioo1,clow=0,chigh=30,widthpx=1024,widthnm=8000)
 subplotgrid(fig=fig1,gs=gs1,y=0,x=1,I=ioo2,clow=0,chigh=30,widthpx=512,widthnm=4000)
+"""

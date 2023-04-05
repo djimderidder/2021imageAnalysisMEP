@@ -27,7 +27,7 @@ folder = "5PIP2_20DOPS\hexamers\denseNetwork"
 
 absolute_path_config = os.path.join(drive,folder,nameconfig)
 config = pd.read_excel(absolute_path_config,skiprows=1)
-iConfig = 45
+iConfig = 15
 
 #nameI = "2022.04.26-13.40.39.612__s1__Si-SLB 5pip2 20dops-120 nM hex__QI_512px-10um.txt"
 nameI = config['name'][iConfig]
@@ -71,8 +71,8 @@ plt.plot(x,bimodal(x,*params),color='red',lw=3,label='model')
 maxHeightFig = np.round(params[3]+np.absolute(params[4])*2.5)
 if booleanFig==True:
     fig = plt.figure(tight_layout=True)
-    fig.set_size_inches(12,8)
-    gs2 = gridspec.GridSpec(2, 2,width_ratios=[7,1],height_ratios= [3, 1])
+    fig.set_size_inches(8,8)
+    gs2 = gridspec.GridSpec(2, 2,width_ratios=[9,1],height_ratios= [3, 1])
     ax3 = fig.add_subplot(gs2[0, 0])
     ax2 = fig.add_subplot(gs2[1, 0])
     ax4 = fig.add_subplot(gs2[0, 1])
@@ -93,7 +93,7 @@ if booleanFig==True:
     cax.set_clim(0,maxHeightFig)
     ax3.axis('off')
     ax4.axis('off')
-    cbar = plt.colorbar(cax, ax=ax4,shrink=1,ticks=[0,maxHeightFig])
+    cbar = plt.colorbar(cax, ax=ax4,shrink=1,aspect=40,ticks=[0,maxHeightFig])
     cbar.set_ticklabels(["0 nm", str(maxHeightFig)+"nm"])
     cbar.ax.tick_params(labelsize=20)
     

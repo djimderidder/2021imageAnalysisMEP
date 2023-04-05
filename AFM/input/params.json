@@ -11,7 +11,7 @@
     },
 
     "optional_parameters": {
-        "Line_width": 10.0,
+        "Line_width": 2.0,
         "High_contrast": 0,
         "Low_contrast": 0
     },

@@ -32,7 +32,18 @@ for i, row in data.iterrows():
     if data['x3'][i]*4>data['x6'][i]:
         height1 = np.append(height1,np.absolute(data['x4'][i]-data['x1'][i]))
 
-fig1, ax1 = plt.subplots()
-ax1.boxplot([height1,height2], notch = True,whis = 0.75)
+plt.rcParams.update({'font.size': 22})
+fig = plt.figure(tight_layout=True)
+fig.set_size_inches(5,5)
+gs2 = gridspec.GridSpec(1, 1)
+ax1 = fig.add_subplot(gs2[0, 0])
+ax1.boxplot([height1,np.zeros(5)], notch = True,whis = 0.75)
 ax1.set_ylim([0, 10])
+ax1.set_xlim([0.5,2.5])
 ax1.set_ylabel('height [nm]')
+
+a=ax1.get_xticks().tolist()
+a[0]='hexamers'
+a[1]='octamers'
+ax1.set_xticklabels(a)
+plt.setp(ax1.get_yticklabels(), fontsize=12);

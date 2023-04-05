@@ -12,9 +12,10 @@ from ast import literal_eval
 
 import cv2
 
-from skimage.filters import meijering, sato, frangi, hessian, hessian_matrix_eigvals, gaussian, threshold_otsu, prewitt_h, prewitt_v
+import skimage.io
+from skimage.filters import meijering, sato, frangi, hessian, gaussian, threshold_otsu, prewitt_h, prewitt_v
 from skimage.morphology import skeletonize, thin, binary_erosion
-from skimage.feature import hessian_matrix
+from skimage.feature import hessian_matrix, hessian_matrix_eigvals
 
 from matplotlib import pyplot as plt
 import matplotlib.gridspec as gridspec
@@ -26,7 +27,7 @@ nameconfig = "fitHeightDistributionshdn.xlsx"
 drive = "D:\AFM_sorted"
 folder = "5PIP2_20DOPS\hexamers\denseNetwork"
 
-absolute_path_config = os.path.join(drive,folder,nameconfig)
+absolute_path_config = os.path.join(drive,folder,nameconfig) 
 config = pd.read_excel(absolute_path_config,skiprows=1)
 iConfig = 15
 
@@ -38,7 +39,9 @@ ymin,ymax,xmin,xmax=[int(s) for s in re.findall(r'\b\d+\b',config['crop'][iConfi
 plt.close('all')
 "import: and crop coordinates"
 absolute_path_I = os.path.join(drive,folder,nameI)
+#absolute_path_Isim = os.path.join(r"D:\AFM_sorted\simulated\structure_1.tif")
 image =(np.loadtxt(absolute_path_I)*10**9)[ymin:ymax,xmin:xmax]
+#imagesim = np.array(skimage.io.imread(absolute_path_Isim),dtype=np.uint8)
 cmap = plt.cm.gray
 "pre-processing: remove outliers"
 heightLimitUp = config['x4'][iConfig]+3*config['x5'][iConfig]
@@ -61,8 +64,8 @@ json_data=load_json(config_filename)
 params = Params(config_filename)
 
 img = img_as_ubyte((image-np.min(image))/(np.max(image)-np.min(image)))
-test=np.reshape(img, image.shape[0]*image.shape[1])
-test=np.reshape(img, [image.shape[1],image.shape[0]])
+test=np.reshape(img, img.shape[0]*img.shape[1])
+test=np.reshape(img, [img.shape[1],img.shape[0]])
 
 detect = LineDetector(params=config_filename)
 result = detect.detectLines(test)
@@ -70,10 +73,34 @@ result = detect.detectLines(test)
 plt.imshow(img,cmap)
 for i in range(len(result)):
     plt.plot(result[i].col,result[i].row,'r')
+
+angles = []
+for i in range(len(result)):
+    for j in result[i].angle:
+        if j<np.pi:
+            angles.append(j)
+        else:
+            angles.append(j-np.pi)
+
+from circularHist import circular_hist
+angles=np.asarray(angles)
+fig, ax = plt.subplots(1,subplot_kw=dict(projection='polar'))
+circular_hist(ax, angles, bins=50, density=True, offset=0, gaps=True)
+
     
 H = hessian_matrix(img,sigma=1)
+eigH = hessian_matrix_eigvals(H)
 E = H[0]+H[2] #energy
-c = np.abs(hessian_matrix_eigvals(H)[0]-hessian_matrix_eigvals(H)[1])/(hessian_matrix_eigvals(H)[0]+hessian_matrix_eigvals(H)[1])#coherency
+c = (eigH[0]-eigH[1])/(eigH[0]+eigH[1]+0.000000001)#coherency
+o = 1/2*np.arctan(2*H[1]/(H[1])-H[0])
+o[np.isnan(o)]=0.554
+
+from matplotlib.colors import hsv_to_rgb
+hsvImage = np.empty([768,768,3])
+hsvImage[:,:,0] = (o-np.ones(image.shape)*np.min(o))/(np.ones(image.shape)*(np.max(o))-np.ones(image.shape)*np.min(o))
+hsvImage[:,:,1] = (image-np.ones(image.shape)*np.min(image))/(np.ones(image.shape)*np.max(image)-np.ones(image.shape)*np.min(image))
+hsvImage[:,:,2] = (image-np.ones(image.shape)*np.min(image))/(np.ones(image.shape)*np.max(image)-np.ones(image.shape)*np.min(image))
+plt.imshow(hsv_to_rgb(hsvImage))
 '''
 #plot preprocessing
 ###
